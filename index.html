@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>pra você, sempre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Parisienne&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF1EA;
+    --cream-2:#F7E8E0;
+    --blush:#F3D6DC;
+    --lavender:#E7D9EA;
+    --rose-gold:#C98A93;
+    --rose-gold-2:#B76E79;
+    --wine:#7A3347;
+    --wine-deep:#5C2338;
+    --wine-heavy:#2E1420;
+    --twilight:#3E2749;
+    --twilight-2:#5A2F49;
+    --gold:#C9A24B;
+    --gold-soft:#E4C583;
+    --ink:#3B2430;
+    --ink-soft:#6B4E58;
+    --near-black:#0B0809;
+    --serif: 'Cormorant Garamond', serif;
+    --script: 'Parisienne', cursive;
+    --sans: 'Inter', sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    .hearts-layer, .petals-layer{ display:none; }
+  }
+
+  /* ---------- flores de cerejeira (poucas, caindo bem devagar) ---------- */
+  .petals-layer{
+    position: fixed; inset: 0; pointer-events: none; z-index: 6; overflow: hidden;
+  }
+  .petal{
+    position: absolute; top: -5%; width: 13px; height: 10px;
+    background: linear-gradient(135deg, #F6D9E0, #F0BFCB);
+    border-radius: 50% 0 50% 50%;
+    opacity: 0;
+    animation: petal-fall linear infinite;
+  }
+  @keyframes petal-fall{
+    0%{ transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    6%{ opacity: var(--po, 0.55); }
+    50%{ transform: translate(var(--psway, 40px), 55vh) rotate(180deg); }
+    94%{ opacity: var(--po, 0.55); }
+    100%{ transform: translate(0, 112vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ---------- tela de carregamento ---------- */
+  .loader{
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--near-black);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 1.2rem;
+    transition: opacity .8s ease;
+  }
+  .loader.hide{ opacity: 0; pointer-events:none; }
+  .loader-text{
+    font-family: var(--serif); font-style: italic; font-size: 1.05rem;
+    letter-spacing: 0.04em; color: var(--rose-gold);
+  }
+  .loader-bar{
+    width: 180px; height: 2px; background: rgba(201,138,147,0.2); border-radius: 2px; overflow:hidden;
+  }
+  .loader-bar-fill{
+    width: 0%; height: 100%;
+    background: linear-gradient(90deg, var(--rose-gold-2), var(--gold));
+    animation: loader-fill 2.2s ease forwards;
+  }
+  @keyframes loader-fill{ to{ width: 100%; } }
+
+  /* ---------- indicador de capítulo ---------- */
+  .chapter-indicator{
+    position: fixed; top: 1.3rem; left: 50%; transform: translateX(-50%);
+    z-index: 150;
+    font-family: var(--sans); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--wine); background: rgba(255,255,255,0.55); backdrop-filter: blur(6px);
+    border: 1px solid rgba(122,51,71,0.15); border-radius: 100px; padding: 0.45rem 0.95rem;
+    opacity: 0; pointer-events:none; transition: opacity .8s ease;
+    white-space: nowrap;
+  }
+  .chapter-indicator.show{ opacity: 1; }
+
+  /* ---------- top progress bar ---------- */
+  .top-progress{
+    position: fixed; top:0; left:0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--rose-gold-2), var(--gold));
+    z-index: 200;
+    transition: width .1s linear;
+  }
+
+  /* ---------- floating controls ---------- */
+  .floating-controls{
+    position: fixed;
+    top: 1.2rem;
+    z-index: 150;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(122,51,71,0.15);
+    cursor:pointer;
+    transition: all .8s ease;
+    opacity: 0;
+    pointer-events:none;
+  }
+  .floating-controls.show{ opacity:1; pointer-events:auto; }
+  .floating-controls:hover{ background: rgba(255,255,255,0.85); }
+  #backBtn{ left: 1.2rem; }
+  #muteBtn{ right: 1.2rem; }
+  .floating-controls svg{ width:16px; height:16px; stroke: var(--wine); fill:none; }
+
+  /* ---------- ambient floating hearts ---------- */
+  .hearts-layer{
+    position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden;
+    transition: opacity 1s ease;
+  }
+  .hearts-layer.muted{ opacity: 0.15; }
+  .heart-particle{
+    position:absolute; bottom: -40px; width: 12px; height: 12px;
+    transform: rotate(-45deg); opacity: 0; animation: float-up linear infinite;
+  }
+  .heart-particle, .heart-particle::before, .heart-particle::after{ background: var(--rose-gold); }
+  .heart-particle::before, .heart-particle::after{ content:''; position:absolute; width:12px; height:12px; border-radius:50%; }
+  .heart-particle::before{ top:-6px; left:0; }
+  .heart-particle::after{ left:6px; top:0; }
+  @keyframes float-up{
+    0%{ transform: translate(0,0) rotate(-45deg) scale(var(--s,1)); opacity:0; }
+    8%{ opacity: var(--o,0.35); }
+    50%{ transform: translate(var(--sway,18px), -55vh) rotate(-45deg) scale(var(--s,1)); }
+    92%{ opacity: var(--o,0.35); }
+    100%{ transform: translate(0, -105vh) rotate(-45deg) scale(var(--s,1)); opacity:0; }
+  }
+
+  /* sparkle particle (per-chapter burst) */
+  .sparkle{
+    position:absolute; width:4px; height:4px; border-radius:50%;
+    background: var(--gold-soft);
+    opacity:0;
+    animation: sparkle-pop 2.6s ease-out forwards;
+    pointer-events:none;
+    z-index: 1;
+  }
+  @keyframes sparkle-pop{
+    0%{ opacity:0; transform: scale(0.3) translateY(6px); }
+    25%{ opacity: .9; transform: scale(1) translateY(0); }
+    100%{ opacity:0; transform: scale(0.6) translateY(-18px); }
+  }
+
+  /* click heart burst */
+  .click-heart{
+    position: fixed; width: 10px; height: 10px; transform: rotate(-45deg);
+    pointer-events:none; z-index: 999; animation: pop-up .95s ease-out forwards;
+  }
+  .click-heart, .click-heart::before, .click-heart::after{ background: var(--rose-gold-2); }
+  .click-heart::before, .click-heart::after{ content:''; position:absolute; width:10px; height:10px; border-radius:50%; }
+  .click-heart::before{ top:-5px; left:0; }
+  .click-heart::after{ left:5px; top:0; }
+  @keyframes pop-up{
+    0%{ opacity: .9; transform: translateY(0) rotate(-45deg) scale(0.6); }
+    100%{ opacity: 0; transform: translateY(-70px) rotate(-45deg) scale(1.1); }
+  }
+
+  /* ---------- shared chapter layout ---------- */
+  .chapter{
+    min-height: 100svh; width: 100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 9rem 1.5rem 7rem;
+    position: relative; text-align:center; overflow: hidden;
+  }
+  .chapter-inner{
+    max-width: 620px; width:100%;
+    display:flex; flex-direction:column; align-items:center; gap: 2.3rem;
+    position: relative; z-index: 2;
+  }
+  .chapter-num{
+    font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.28em;
+    color: var(--rose-gold-2); text-transform: uppercase; opacity: 0;
+  }
+  .chapter h2{
+    font-family: var(--serif); font-weight: 500; font-size: clamp(1.7rem, 4.4vw, 2.6rem);
+    line-height: 1.35; color: var(--wine); font-style: italic; max-width: 16ch; opacity: 0;
+  }
+  .dark-bg h2{ color: var(--cream); }
+  .chapter p{
+    font-family: var(--sans); font-weight: 300; font-size: clamp(1rem, 2vw, 1.14rem);
+    line-height: 1.95; color: var(--ink-soft); white-space: pre-line; text-align: left; opacity: 0;
+  }
+  .dark-bg p{ color: rgba(251,241,234,0.82); }
+
+  .reveal{
+    transform: translateY(26px);
+    filter: blur(8px);
+    opacity: 0;
+    transition: opacity 1.15s cubic-bezier(.2,.7,.2,1), transform 1.15s cubic-bezier(.2,.7,.2,1), filter 1.15s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in-view{ opacity: 1; transform: translateY(0); filter: blur(0); }
+  .reveal.d1{ transition-delay: .1s; }
+  .reveal.d2{ transition-delay: .24s; }
+  .reveal.d3{ transition-delay: .4s; }
+  .reveal.d4{ transition-delay: .6s; }
+  .reveal.d5{ transition-delay: .8s; }
+
+  /* pontinho rosa que cresce (sequência tipo documentário) */
+  .growing-dot{
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--rose-gold-2);
+    box-shadow: 0 0 14px rgba(183,110,121,0.55);
+    transform: scale(0); opacity: 0;
+    transition: transform .9s cubic-bezier(.34,1.56,.64,1), opacity .9s ease;
+  }
+  .growing-dot.d4{ transition-delay: .6s; }
+  .growing-dot.in-view{ transform: scale(1); opacity: 1; }
+
+  /* chapter 4: heavier, slower reveal */
+  #ch4 .reveal{ transition-duration: 1.9s, 1.9s, 1.9s; }
+  #ch4 .reveal.d3{ transition-delay: 1s; }
+
+  .date-tag{
+    font-family: var(--serif); font-style: italic; font-size: 1.05rem;
+    color: var(--rose-gold-2); letter-spacing: 0.03em;
+  }
+
+  /* photo frame - "mat" style, zoom-in on reveal */
+  .frame{ width: 100%; display:flex; justify-content:center; }
+  .photo-mat{
+    background: #fffaf6;
+    padding: 0.9rem 0.9rem 1.3rem;
+    box-shadow: 0 30px 60px -22px rgba(122,51,71,0.35), 0 0 0 1px rgba(201,138,147,0.15);
+    border-radius: 3px;
+    display:inline-block;
+    position: relative;
+    transform: rotate(var(--r, -1.2deg)) scale(1);
+    transition: transform .8s ease;
+    cursor: zoom-in;
+  }
+  .photo-mat:hover{ transform: rotate(0deg) scale(1.015); }
+  .photo-mat img{
+    max-width: 100%; max-height: 62vh; width: auto; height: auto; display:block;
+    transform: scale(1.06);
+    transition: transform 1.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in-view .photo-mat img{ transform: scale(1); }
+
+  /* memory-card look for ch6/ch7: paper texture + washi tape */
+  .memory-card{
+    background-image:
+      radial-gradient(rgba(122,51,71,0.035) 0.7px, transparent 0.7px);
+    background-size: 5px 5px;
+  }
+  .memory-card::before{
+    content:'';
+    position:absolute;
+    top:-10px; left:50%;
+    width: 60px; height: 22px;
+    background: rgba(228,197,131,0.55);
+    transform: translateX(-50%) rotate(-3deg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+
+  .continue-btn{
+    background: none; border: 1px solid rgba(122,51,71,0.3); color: var(--wine);
+    font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 0.95rem 2rem; border-radius: 100px; cursor: pointer; margin-top: 1rem;
+    transition: all .8s ease; opacity: 0; animation: heartbeat 3.4s ease-in-out infinite;
+  }
+  .dark-bg .continue-btn{ color: var(--cream); border-color: rgba(251,241,234,0.35); }
+  .continue-btn:hover{ border-color: var(--rose-gold-2); background: rgba(201,138,147,0.1); letter-spacing: 0.2em; }
+  .continue-btn:active{ transform: scale(0.95); }
+  @keyframes heartbeat{
+    0%,100%{ box-shadow: 0 0 0 0 rgba(201,138,147,0); }
+    88%{ box-shadow: 0 0 0 0 rgba(201,138,147,0); }
+    92%{ box-shadow: 0 0 0 6px rgba(201,138,147,0.12); }
+    96%{ box-shadow: 0 0 0 0 rgba(201,138,147,0); }
+  }
+
+  /* section background washes */
+  .bg-cream{ background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--cream-2), var(--cream) 60%); }
+  .bg-blush{ background: linear-gradient(180deg, var(--cream) 0%, var(--blush) 50%, var(--cream-2) 100%); }
+  .bg-lavender{ background: linear-gradient(180deg, var(--cream-2) 0%, var(--lavender) 55%, var(--blush) 100%); }
+  .bg-wine{ background: linear-gradient(165deg, #E0BEC5 0%, #A85D6C 30%, var(--wine-heavy) 100%); }
+  .bg-gold-cream{ background: linear-gradient(180deg, var(--cream) 0%, #F6E6C8 55%, var(--cream-2) 100%); }
+  .bg-twilight{ background: radial-gradient(ellipse 90% 60% at 50% 20%, var(--twilight-2), var(--twilight) 70%); }
+  .bg-finale{
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 30%, rgba(228,197,131,0.35), transparent 60%),
+      linear-gradient(160deg, var(--wine-deep) 0%, #4A1E33 100%);
+  }
+
+  .watermark-heart{ position:absolute; width: 340px; height: 340px; opacity: 0.06; pointer-events:none; z-index:1; }
+  .watermark-heart svg{ width:100%; height:100%; }
+
+  .divider{ width: 100%; display:flex; justify-content:center; padding: 0 0 0.5rem; }
+  .divider svg{ width: 46px; height: 40px; overflow: visible; }
+  .divider path{
+    fill:none; stroke: var(--rose-gold-2); stroke-width: 1.4; stroke-linecap: round;
+    stroke-dasharray: 140; stroke-dashoffset: 140;
+    transition: stroke-dashoffset 1.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .dark-bg .divider path{ stroke: var(--gold-soft); }
+  .divider.in-view path{ stroke-dashoffset: 0; }
+
+  /* ---------- cinematic hero ---------- */
+  .hero{
+    height: 100svh; width:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding: 2rem; position: relative;
+    background: var(--near-black);
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(201,138,147,0.5) 0.6px, transparent 0.6px);
+    background-size: 3px 3px;
+    opacity: 0.04;
+    pointer-events: none;
+  }
+  .hero-vignette{
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse 60% 45% at 50% 100%, rgba(122,51,71,0.35), transparent 65%);
+    pointer-events:none;
+  }
+  .hero-dust{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .dust{
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background: rgba(201,138,147,0.5);
+    animation: dust-float linear infinite;
+  }
+  @keyframes dust-float{
+    0%{ transform: translateY(0) translateX(0); opacity:0; }
+    10%{ opacity:.5; }
+    90%{ opacity:.5; }
+    100%{ transform: translateY(-40vh) translateX(10px); opacity:0; }
+  }
+
+  .hero-content{ position: relative; z-index: 2; }
+  .hero-line{
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: clamp(1.4rem, 4.6vw, 2.4rem); line-height: 1.55;
+    max-width: 19ch; color: var(--cream);
+    text-shadow: 0 4px 40px rgba(0,0,0,0.6);
+  }
+  .hero-line + .hero-line{ margin-top: 1.1rem; }
+  .hero-line .w{
+    display: inline-block; opacity: 0; transform: translateY(10px); filter: blur(4px);
+    animation: word-in 1.1s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes word-in{ to{ opacity:1; transform: translateY(0); filter: blur(0); } }
+
+  .hero-sub{
+    margin-top: 2.8rem; font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--rose-gold); opacity:0; animation: fade-in 1.2s ease forwards;
+  }
+  @keyframes fade-in{ to{ opacity:1; } }
+
+  .btn-primary{
+    margin-top: 1.3rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+    border: 1px solid rgba(201,138,147,0.5); color: var(--rose-gold);
+    font-family: var(--serif); font-style: italic; font-size: 1.2rem;
+    padding: 1rem 2.8rem; border-radius: 100px; cursor: pointer; letter-spacing: 0.02em;
+    box-shadow: 0 0 0 rgba(201,138,147,0);
+    transition: all .8s cubic-bezier(.2,.8,.2,1);
+    opacity:0; animation: fade-in 1.2s ease forwards, glow-pulse 3.2s ease-in-out infinite;
+  }
+  .btn-primary:hover{
+    border-color: var(--rose-gold); color: var(--cream);
+    box-shadow: 0 0 40px rgba(201,138,147,0.35);
+    transform: translateY(-3px);
+  }
+  .btn-primary:active{ transform: translateY(0) scale(0.97); }
+  @keyframes glow-pulse{
+    0%,100%{ box-shadow: 0 0 0px rgba(201,138,147,0.15); }
+    50%{ box-shadow: 0 0 26px rgba(201,138,147,0.3); }
+  }
+
+  /* ---------- chapter 4 highlight ---------- */
+  .highlight-block{
+    display:flex; flex-direction:column; gap: 0.5rem; padding: 2rem 1.6rem; margin: 0.4rem 0;
+    background: rgba(255,255,255,0.06); border-radius: 4px; border-left: 2px solid var(--gold-soft);
+  }
+  .highlight-block p{
+    font-family: var(--serif); font-style: italic; font-size: clamp(1.2rem, 3vw, 1.55rem);
+    line-height: 1.6; text-align: center; white-space: normal;
+  }
+
+  /* ---------- chapter 6: cartas ---------- */
+  .letters-wrap{ display:flex; gap: 1.8rem; flex-wrap: wrap; justify-content:center; width:100%; }
+  .letter-card{
+    background: #fffaf6; padding: 0.9rem; border-radius: 3px;
+    box-shadow: 0 25px 55px -20px rgba(122,51,71,0.4);
+    max-width: 250px; position: relative;
+    transform: rotate(var(--r, -2.5deg));
+    transition: transform .8s ease;
+    cursor: zoom-in;
+  }
+  .letter-card:nth-child(2){ --r: 2.5deg; }
+  .letter-card:hover{ transform: rotate(0deg) scale(1.03); }
+  .letter-card img{ width: 100%; height: auto; display:block; }
+  .letter-card figcaption{
+    font-family: var(--serif); font-style: italic; font-size: 0.86rem;
+    color: var(--rose-gold-2); text-align:center; padding-top: 0.7rem;
+  }
+
+  /* ---------- chapter 7: fotos bobas — story layout ---------- */
+  .photo-story{ display:flex; flex-direction:column; gap: 6rem; width:100%; max-width: 640px; }
+  .photo-story-item{ display:flex; flex-direction:column; align-items:center; gap: 1rem; }
+  .photo-story-item.right{ align-items: flex-end; text-align:right; }
+  .photo-story-item.left{ align-items: flex-start; text-align:left; }
+  .photo-story-item .photo-mat img{ max-height: 60vh; }
+  .photo-tag{ font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--rose-gold-2); }
+  @media (max-width: 560px){
+    .photo-story-item.right, .photo-story-item.left{ align-items:center; text-align:center; }
+    .photo-story{ gap: 4.5rem; }
+  }
+
+  /* ---------- timeline sidebar (desktop) ---------- */
+  .timeline{
+    position: fixed; right: 1.6rem; top: 50%; transform: translateY(-50%);
+    z-index: 60; display:flex; flex-direction:column; align-items:flex-end; gap: 0;
+  }
+  .timeline-item{ display:flex; align-items:center; gap: 0.7rem; height: 30px; }
+  .timeline-label{
+    font-family: var(--serif); font-style: italic; font-size: 0.8rem; color: var(--wine);
+    opacity:0; transform: translateX(6px); white-space:nowrap;
+    transition: all .8s ease;
+  }
+  .timeline-item.active .timeline-label{ opacity:1; transform: translateX(0); }
+  .timeline-dot{
+    width: 6px; height: 6px; border-radius: 50%; background: rgba(122,51,71,0.25);
+    transition: all .8s ease; flex-shrink:0;
+  }
+  .timeline-item.active .timeline-dot{
+    background: var(--gold); box-shadow: 0 0 8px rgba(201,162,75,0.7); width:9px; height:9px;
+  }
+  .timeline-line{
+    position:absolute; right: 2.9px; top: 15px; bottom: 15px; width: 1px;
+    background: rgba(122,51,71,0.15); z-index:-1;
+  }
+  @media (max-width: 900px){ .timeline{ display:none; } }
+
+  /* ---------- contador de tempo ---------- */
+  .counter-section{
+    position: relative;
+    padding: 6rem 1.5rem 7rem;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    gap: 1.6rem;
+  }
+  .counter-since{
+    font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--rose-gold-2);
+  }
+  .counter-title{
+    font-family: var(--script); font-size: clamp(1.8rem, 5vw, 2.6rem); color: var(--wine-deep);
+    margin-top: -0.3rem;
+  }
+  .counter-grid{
+    display:flex; flex-wrap: wrap; justify-content:center; gap: 1rem;
+    margin-top: 0.8rem;
+  }
+  .counter-box{
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(122,51,71,0.14);
+    border-radius: 14px;
+    padding: 1.1rem 1.4rem;
+    min-width: 84px;
+    box-shadow: 0 10px 26px rgba(122,51,71,0.08);
+  }
+  .counter-num{
+    font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem, 5vw, 2.6rem);
+    color: var(--wine); line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .counter-label{
+    font-family: var(--sans); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-soft); margin-top: 0.35rem; display:block;
+  }
+  .counter-caption{
+    font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--ink-soft);
+    max-width: 480px; margin-top: 0.6rem;
+  }
+
+  /* ---------- chapter 8: twilight stars ---------- */
+  .stars-bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+  .star{
+    position:absolute; width: 2px; height: 2px; background: var(--gold-soft);
+    border-radius: 50%; opacity: 0.5; animation: twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle{ 0%,100%{ opacity:0.15; } 50%{ opacity:0.9; } }
+
+  /* still-being-written transition line */
+  .still-writing{
+    padding: 5rem 1.5rem; text-align:center;
+    background: linear-gradient(180deg, var(--twilight) 0%, var(--wine-deep) 100%);
+  }
+  .still-writing p{
+    font-family: var(--script); font-size: clamp(1.6rem, 5vw, 2.3rem);
+    color: var(--gold-soft);
+  }
+
+  /* ---------- final ---------- */
+  .final-title{
+    font-family: var(--script); font-weight: 400; font-size: clamp(3rem, 11vw, 5.5rem);
+    color: var(--cream); line-height: 1;
+  }
+  .final-signature{ font-family: var(--script); color: var(--gold-soft); font-size: 2.2rem; margin-top: 0.5rem; }
+
+  .finale-stage{ display:flex; flex-direction:column; align-items:center; gap: 1.4rem; margin-top: 1rem; }
+  .finale-stage > *{
+    opacity:0; transform: translateY(14px); filter: blur(6px);
+    transition: opacity 1.4s ease, transform 1.4s ease, filter 1.4s ease;
+  }
+  .finale-stage > .show{ opacity:1; transform: translateY(0); filter: blur(0); }
+  .final-stamp{
+    font-family: var(--sans); font-size: 0.85rem; letter-spacing: 0.3em; color: rgba(251,241,234,0.7);
+  }
+  .final-note{
+    font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: rgba(228,197,131,0.75);
+  }
+  .restart-btn{
+    background: none; border: 1px solid rgba(228,197,131,0.4); color: var(--gold-soft);
+    font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 0.85rem 1.8rem; border-radius: 100px; cursor: pointer; transition: all .8s ease;
+  }
+  .restart-btn:hover{ background: rgba(228,197,131,0.1); border-color: var(--gold-soft); }
+
+  .finale-hearts{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+
+  /* ---------- lightbox ---------- */
+  .lightbox{
+    position: fixed; inset:0; background: rgba(11,8,9,0.88);
+    display:flex; align-items:center; justify-content:center;
+    z-index: 500; opacity:0; pointer-events:none; transition: opacity .8s ease;
+    padding: 3rem 1.5rem;
+  }
+  .lightbox.open{ opacity:1; pointer-events:auto; }
+  .lightbox img{
+    max-width: min(90vw, 700px); max-height: 82vh; width:auto; height:auto;
+    box-shadow: 0 40px 90px rgba(0,0,0,0.5);
+    transform: scale(0.9); transition: transform .8s cubic-bezier(.2,.8,.2,1);
+    background: #fffaf6; padding: 10px;
+  }
+  .lightbox.open img{ transform: scale(1); }
+  .lightbox.unfold img{ transform: scale(0.9) rotateX(12deg); }
+  .lightbox.unfold.open img{ transform: scale(1) rotateX(0); }
+  .lightbox-close{
+    position:absolute; top: 1.5rem; right: 1.5rem;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
+    color: var(--cream); font-size: 1.1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <span class="loader-text">carregando nossa história...</span>
+</div>
+
+<div class="top-progress" id="topProgress"></div>
+<div class="hearts-layer" id="heartsLayer"></div>
+<div class="petals-layer" id="petalsLayer"></div>
+<div class="chapter-indicator" id="chapterIndicator"></div>
+
+<button class="floating-controls" id="backBtn" aria-label="Voltar">
+  <svg viewBox="0 0 24 24" stroke-width="1.6"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<button class="floating-controls" id="muteBtn" aria-label="Música">
+  <svg viewBox="0 0 24 24" stroke-width="1.6" id="muteIcon"><path d="M4 9v6h4l5 5V4L8 9H4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<div class="timeline" id="timeline"><div class="timeline-line"></div></div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <img src="" alt="" id="lightboxImg">
+</div>
+
+<audio id="bgMusic" src="assets/music.mp3" loop preload="none"></audio>
+
+<!-- HERO -->
+<section class="hero" id="hero" data-milestone="31/10/2025">
+  <div class="hero-vignette"></div>
+  <div class="hero-dust" id="heroDust"></div>
+  <div class="hero-content">
+    <div class="hero-line" id="heroLine1"></div>
+    <div class="hero-line" id="heroLine2"></div>
+    <div class="hero-sub" id="heroSub">nossa história</div>
+    <button class="btn-primary" id="startBtn" style="display:none;">Ler história</button>
+  </div>
+</section>
+
+<!-- CAPÍTULO 1 -->
+<section class="counter-section bg-cream" id="liveCounter" data-milestone="Desde sempre">
+  <span class="counter-since">Desde 31.10.2025</span>
+  <span class="counter-title">nossas vidas se encontraram há</span>
+  <div class="counter-grid">
+    <div class="counter-box"><span class="counter-num" id="cDays">0</span><span class="counter-label">dias</span></div>
+    <div class="counter-box"><span class="counter-num" id="cHours">00</span><span class="counter-label">horas</span></div>
+    <div class="counter-box"><span class="counter-num" id="cMinutes">00</span><span class="counter-label">minutos</span></div>
+    <div class="counter-box"><span class="counter-num" id="cSeconds">00</span><span class="counter-label">segundos</span></div>
+  </div>
+  <p class="counter-caption reveal">E o relógio nunca vai parar de contar, porque isso aqui não tem fim.</p>
+</section>
+
+<section class="chapter bg-cream" id="ch1" data-milestone="Primeiro contato">
+  <div class="chapter-inner">
+    <span class="chapter-num reveal">capítulo 01</span>
+    <h2 class="reveal d1">foi aqui que tudo começou, o universo botou a gente no mesmo lugar e na mesma hora</h2>
+    <span class="date-tag reveal d2">31 de outubro de 2025 — 20:00</span>
+    <div class="frame reveal d3">
+      <div class="photo-mat" style="--r:-1.5deg;"><img src="assets/tracker-primeira-partida.jpg" alt="Tracker da nossa primeira partida juntos"></div>
+    </div>
+    <div class="growing-dot d4" aria-hidden="true"></div>
+    <p class="reveal d5">Eu fico maluco de pensar que talvez se eu estivesse fazendo qualquer coisa ou em qualquer lugar naquela hora, talvez nem nos conheceríamos agora, e nossas vidas seriam completamente diferentes, mas parando pra pensar a coisa mais importante da minha vida nem se tratava de PDL, do nada no meio de um simples jogo eu encontrei a melhor pessoa desse mundo, e que mudaria completamente quem eu sou e minha vida.
+
+eu nem fazia ideia disso, dá pra imaginar?</p>
+    <button class="continue-btn reveal" data-next="ch2">continuar</button>
+  </div>
+</section>
+
+<div class="divider"><svg viewBox="0 0 40 36"><path d="M20 33 C4 22 0 12 8 6 C14 1 20 6 20 10 C20 6 26 1 32 6 C40 12 36 22 20 33 Z"/></svg></div>
+
+<!-- CAPÍTULO 2 -->
+<section class="chapter bg-blush" id="ch2" data-milestone="Primeira conversa">
+  <div class="chapter-inner">
+    <span class="chapter-num reveal">capítulo 02</span>
+    <h2 class="reveal d1">e aqui, logo depois de jogarmos juntos por hora, aconteceu nosso primeiro "oi"</h2>
+    <div class="frame reveal d2">
+      <div class="photo-mat" style="--r:1.5deg;"><img src="assets/primeira-conversa.jpg" alt="Print da nossa primeira conversa"></div>
+    </div>
+    <p class="reveal d3">tudo começou com umas simples mensagens bobas, que eu não fazia ideia que isso mudaria completamente eu e minha vida por completo.
+
+olhar agora e ver esse print pode parecer tão simples, tão bobo.
+
+mas foi exatamente aqui que nasceu cada madrugada, cada conversa, cada risada, cada ligação, cada choro, cada sorriso, cada cuidado e cada "eu te amo" que veio depois.
+
+eu juro que se eu pudesse voltar no tempo eu não faria quase nada de diferente, só mudaria como tomei algumas decisões pra não te machucar, pq você nunca mereceu nada disso</p>
+    <button class="continue-btn reveal" data-next="ch3">continuar</button>
+  </div>
+</section>
+
+<div class="divider"><svg viewBox="0 0 40 36"><path d="M20 33 C4 22 0 12 8 6 C14 1 20 6 20 10 C20 6 26 1 32 6 C40 12 36 22 20 33 Z"/></svg></div>
+
+<!-- CAPÍTULO 3 -->
+<section class="chapter bg-lavender" id="ch3" data-milestone="Rotina">
+  <div class="chapter-inner">
+    <span class="chapter-num reveal">capítulo 03</span>
+    <h2 class="reveal d1">e sem perceber, foi virando rotina</h2>
+    <p class="reveal d2">e aos poucos mesmo com tão pouco tempo você foi virando a melhor parte do meu dia, a melhor parte da minha vida, e a melhor parte de mim, eu dormia e acordava pensando em você, querendo falar e ficar com você logo, ouvir sua voz, ouvir sua risada, saber como foi seu dia.
+
+e nisso entre partidas, entre ligações, entre conversas sem sentido e risadas completamente idiotas, aconteceu a coisa mais bonita:
+
+eu comecei a esperar por você todos os dias, eu comecei a me apaixonar e criar um sentimento único por você, cada dia mais.
+
+Sem esforço. Sem obrigação. Só porque estar com você fazia tudo ficar melhor, me fazia uma pessoa melhor, fazia meus dias melhores</p>
+    <button class="continue-btn reveal" data-next="ch4">continuar</button>
+  </div>
+</section>
+
+<div class="divider"><svg viewBox="0 0 40 36"><path d="M20 33 C4 22 0 12 8 6 C14 1 20 6 20 10 C20 6 26 1 32 6 C40 12 36 22 20 33 Z"/></svg></div>
+
+<!-- CAPÍTULO 4 -->
+<section class="chapter bg-wine dark-bg" id="ch4" data-milestone="A verdade">
+  <div class="chapter-inner">
+    <span class="chapter-num reveal" style="color:var(--gold-soft);">capítulo 04</span>
+    <h2 class="reveal d1">E aqui foi uma parte muito difícil</h2>
+    <div class="frame reveal d2">
+      <div class="photo-mat" style="--r:-1deg;"><img src="assets/verdade.jpg" alt="Print de quando ela descobriu a verdade"></div>
+    </div>
+    <p class="reveal d3">Eu poderia fingir que nossa história foi perfeita, como um filme, como um casal perfeito, mas não foi, não foi mesmo e por culpa minha, eu sei disso.
+
+te machuquei, machuquei muito, fiz você ter motivos para duvidar, e esse continua sendo o maior arrependimento da minha vida, quando estávamos apaixonados e eu pensava como reverter isso todo dia e eu não via saída, eu me encontrava perdido e com medo.
+
+Mesmo assim…
+
+Você escolheu ouvir, você escolheu conversar, escolheu ver quem eu realmente era, mesmo tão machucada você olhou lá no fundo e viu um garotinho que realmente falava a verdade, mas que se escondia. E, contra todas as probabilidades, escolheu ficar.
+
+obrigado por ter dado uma segunda chance para nós dois, e eu to fazendo de tudo pra isso valer a pena, pra a gente ficar junto assim como sempre sonhamos, e eu vou ficar do seu lado, pra te abraçar, te ouvir, te aconselhar, cuidar de você, te apoiar nas suas decisões e celebrar todos os momentos e conquistas com você.
+
+e a partir daí não foi um novo relacionamento.
+
+Foi a mesma história… só que construída com verdade, com o mesmo amor e carinho de sempre.
+
+E desde esse dia eu prometi, mais para mim do que para qualquer pessoa, que você nunca mais teria a menor dúvida de quem você escolheu, de quem você decidiu amar e criar uma linda história, que ainda tem muitos e muitos capítulos pra ser vivido e anotado, que eu prometo que vai dar certo.</p>
+    <div class="highlight-block reveal">
+      <p style="color: var(--gold-soft);">E a partir daí não foi um novo relacionamento.</p>
+      <p style="color: var(--cream);">Foi a mesma história… só que construída com verdade, com o mesmo amor e carinho de sempre.</p>
+    </div>
+    <button class="continue-btn reveal" data-next="ch6">continuar</button>
+  </div>
+</section>
+
+<div class="divider"><svg viewBox="0 0 40 36"><path d="M20 33 C4 22 0 12 8 6 C14 1 20 6 20 10 C20 6 26 1 32 6 C40 12 36 22 20 33 Z"/></svg></div>
+
+<!-- CAPÍTULO 6 (não existe capítulo 5) -->
+<section class="chapter bg-gold-cream" id="ch6" data-milestone="Cartas">
+  <div class="chapter-inner">
+    <span class="chapter-num reveal">capítulo 06</span>
+    <h2 class="reveal d1">Esses aqui são uns trechinhos bobos, mas que eu guardo com todo meu coração</h2>
+    <div class="letters-wrap reveal d2">
+      <figure class="letter-card memory-card" data-lightbox="unfold">
+        <img src="assets/carta-dela.jpg" alt="Carta escrita por ela">
+        <figcaption>a carta dela — toque para abrir</figcaption>
+      </figure>
+      <figure class="letter-card memory-card" data-lightbox="unfold">
+        <img src="assets/minha-carta.jpg" alt="Carta escrita por mim">
+        <figcaption>a minha carta — toque para abrir</figcaption>
+      </figure>
+    </div>
+    <p class="reveal d3">existem diversos presentes caros por aí, mas pra mim palavras de coração vale mais do que qualquer coisa nesse mundo meu amor, por isso eu sempre tento tirar um tempinho pra poder expressar o que eu realmente sinto, principalmente em momentos difíceis pra você, eu sou uma das únicas pessoas que realmente tá com você quando ninguém tá, que realmente vê o que ninguém tá vendo, uma garotinha repleta de sonhos e de desejos, que quer mostrar pro mundo que ela é capaz, que ela consegue, e por isso sempre sempre sempre se esforça pra tudo isso, e quando ninguém enxerga isso, isso acaba com ela, faz ela pensar que não é capaz, que não é boa, ou que é invisível, mas sério? se tem uma garota capaz nesse mundo é você, se tem uma garota forte, dedicada, completamente inteligente e esforçada, essa garotinha é você meu amor, eu tenho muito orgulho da mulher que você tá construindo, e isso tudo é fruto do seu próprio esforço, eu sei tudo que você passa e já passou, sua cabecinha tá a mil 24 horas por dia, cheia de medos, de traumas, mas ao mesmo tempo cheia de desejo e de vontade a todo momento, às vezes isso entra em conflito e te destrói, mas quando você volta a enxergar quem você realmente é, volta a enxergar que você é talentosa, dedicada, e muito linda né ESQUECI DE FALAR, você vai lá e mete a cara, de novo e de novo, e eu tenho certeza que você vai conseguir, na verdade, vamos conseguir juntos, eu e você, eu vou estar aqui pra celebrar tudo com você, pra te abraçar sempre que você precisar de mim, e pra te lembrar de quem você realmente é, sempre e sempre.
+
+eu guardo cada palavra sua, cada textinho, cada áudio, cada foto boba, porque, quando a saudade aperta, elas sempre conseguem me trazer você um pouquinho para perto, como se você estivesse aqui, comigo, mas mesmo não estando, essas coisinhas me trazem uma paz, uma calma, que eu ainda não sei explicar muito bem, mas eu sei que é você aqui comigo mesmo que não seja literalmente ksdksa</p>
+    <button class="continue-btn reveal" data-next="ch7">continuar</button>
+  </div>
+</section>
+
+<div class="divider"><svg viewBox="0 0 40 36"><path d="M20 33 C4 22 0 12 8 6 C14 1 20 6 20 10 C20 6 26 1 32 6 C40 12 36 22 20 33 Z"/></svg></div>
+
+<!-- CAPÍTULO 7 -->
+<section class="chapter bg-blush" id="ch7" data-milestone="Fotos bobas" style="padding-top: 7rem;">
+  <div class="chapter-inner" style="gap: 4rem;">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0.8rem;">
+      <span class="chapter-num reveal">capítulo 07</span>
+      <h2 class="reveal d1">fotinhas bobas</h2>
+    </div>
+
+    <div class="photo-story">
+      <div class="photo-story-item left reveal">
+        <div class="photo-mat memory-card" style="--r:-2deg;"><img src="assets/foto-boba-1.jpg" alt="Foto boba 1"></div>
+        <span class="photo-tag">esse dia bobo</span>
+      </div>
+      <div class="photo-story-item right reveal">
+        <div class="photo-mat memory-card" style="--r:2deg;"><img src="assets/foto-boba-2.jpg" alt="Foto boba 2"></div>
+        <span class="photo-tag">esse seu jeito</span>
+      </div>
+      <div class="photo-story-item left reveal">
+        <div class="photo-mat memory-card" style="--r:-1.5deg;"><img src="assets/foto-boba-3.jpg" alt="Foto boba 3"></div>
+        <span class="photo-tag">esse sorriso</span>
+      </div>
+      <div class="photo-story-item right reveal">
+        <div class="photo-mat memory-card" style="--r:2.5deg;"><img src="assets/foto-boba-4.jpg" alt="Foto boba 4"></div>
+        <span class="photo-tag">essa versão sua</span>
+      </div>
+    </div>
+
+    <p class="reveal">você provavelmente nem lembra dessas coisinhas.
+
+Mas eu lembro.
+
+Porque foram justamente esses momentos espontâneos, essas fotos bobas que você morre de medo de me mandar, que me fizeram eu me apaixonar e continuar crescendo esse sentimento, cada dia mais e mais, nesses momentos onde você simplesmente era você.
+
+Essa sempre foi minha versão favorita, esse seu sorriso lindo, esses seus olhinhos que são o motivo dos meus dias serem tão felizes, meu deus eu sou tão apaixonado por você amor, seu rostinho lindo é uma das 10 maravilhas que existem nesse mundo pra mim 😔</p>
+    <button class="continue-btn reveal" data-next="ch8">continuar</button>
+  </div>
+</section>
+
+<div class="divider"><svg viewBox="0 0 40 36"><path d="M20 33 C4 22 0 12 8 6 C14 1 20 6 20 10 C20 6 26 1 32 6 C40 12 36 22 20 33 Z"/></svg></div>
+
+<!-- CAPÍTULO 8 -->
+<section class="chapter bg-twilight dark-bg" id="ch8" data-milestone="O futuro">
+  <div class="stars-bg" id="starsBg"></div>
+  <div class="chapter-inner">
+    <span class="chapter-num reveal" style="color:var(--gold-soft);">capítulo 08</span>
+    <h2 class="reveal d1">Ainda tem muita coisa pra acontecer</h2>
+    <p class="reveal d2">Ainda falta a melhor parte, ainda falta nosso primeiro abraço, nosso primeiro beijo, nosso primeiro riso, nosso primeiro passeio KSKDSAK nosso primeiro café juntos, nossa primeira vez correndo juntos na chuva, nossa primeira vez se beijando em alguma paisagem bonita KSAKSADK, e eu não vejo a hora de isso acontecer, de eu poder te abraçar e não te soltar nunca mais, vai ser a melhor sensação de toda a minha vida, ainda falta milhares de fotos que nem existem ainda mas que vamos tirar bastante KSAKDSA, e por ainda faltar muita coisa, e pela primeira vez, isso não me deixa completamente ansioso, mas me deixa feliz, de saber que estamos construindo uma história tão linda, mas aos poucos, tijolinho por tijolinho, e eu espero de verdade que esse muro nunca caia.
+
+E por fim amor</p>
+  </div>
+</section>
+
+<div class="still-writing reveal" id="stillWriting">
+  <p>Uma história que ainda está sendo escrita.</p>
+</div>
+
+<!-- CAPÍTULO 9 - FINAL -->
+<section class="chapter bg-finale dark-bg" id="ch9" data-milestone="Hoje — ∞">
+  <div class="finale-hearts" id="finaleHearts"></div>
+  <div class="chapter-inner">
+    <span class="chapter-num reveal" style="color:var(--gold-soft);">capítulo 09</span>
+    <h2 class="final-title reveal d1">Feliz aniversário</h2>
+    <p class="reveal d2">Feliz aniversário, minha princesa, hoje a pessoa mais importante da minha vida tá concluindo mais um ano, mais um ciclo, finalmente chegou seu dia em meu bem saldsaldsd.
+
+Eu queria te agradecer, por tudo. Desde que você chegou, meus dias se transformaram completamente, não só meus dias como minha vida também. Você me transformou e transformou minha vida em uma coisa melhor, você salvou a minha vida, me fez ter esperança de poder ser feliz também um dia, e essa esperança veio à tona mais rápido do que eu imaginei, muito antes de eu conseguir entender eu já estava completamente apaixonado, feliz, e lutando pra ser uma pessoa melhor e um namorado melhor pra você.
+
+Amor, saiba que eu amo cada detalhe seu, cada coisinha boba que você faz por mim, eu amo seu sorriso, seus olhinhos, seu rostinho, eu olho pros seus sonhos, suas vontades, e elas se tornam minhas vontades também sabe, eu quero poder compartilhar do melhor dessa vida com você.
+
+Obrigado por cada momento, cada sorriso, cada lágrima, cada call, cada tudo, eu agradeço a Deus todos e todos os dias por ter você na minha vida, e mesmo eu sendo meio idiota às vezes, ainda assim você não desiste de mim. Você é tão perfeita meu bem, incrível de todos os jeitos e você merece o melhor desse mundo amor, e eu vejo o tanto que você corre atrás, o tanto que você se esforça, amor, juízo nessa sua cabecinha em alskdkask, agora tá mais velha.
+
+Aa nenem, eu não consigo mais imaginar uma vida sem você sabe, sem nossos filhinhos, sem nossa casinha, sem a gente juntinho. Enfim, aproveita seu dia meu amor, eu quero e espero muito poder ficar do seu ladinho pra todo sempre, quero poder continuar te amando, te abraçando, sendo seu parceiro, seu companheiro, seu eterno namorado, e seu chatinho JKSDKSDKF pra sempre meu amor.
+
+Eu torço pra que você consiga realizar todos os seus sonhos, pq eles se tornaram os meus também, muito obrigado por ser essa pessoa incrível meu amor, que sempre tenta me ouvir, me entender, me ajudar, me aconselhar, sempre tá de olho no que eu preciso e sempre me ajuda e me aconselha da melhor forma possível. Você é muito mais que minha namorada amor, você é tudo pra mim, você se tornou a minha vida e a pessoa com quem eu quero dividir tudo, e pra sempre.
+
+E eu sei que eu te devo isso amor, te devo esse mundo todinho, não sei ao certo se eu vou conseguir te dar, mas eu vou me esforçar muito pra todo dia poder arrancar um sorriso desse seu rostinho, pra todo dia te dar o abraço mais forte do mundo como se sempre fosse a primeira vez.
+
+Muito obrigado por não desistir de nós e por ser essa namorada incrível que você é, minha melhor amiga, minha companheira, minha gatinha, minha princesa.</p>
+    <p class="final-signature reveal d3">Eu te amo.</p>
+    <p class="reveal d3" style="font-family: var(--sans); font-size: 0.95rem; letter-spacing: 0.02em; opacity:0.85; margin-top:-0.4rem;">Feliz aniversário, aproveita o seu dia meu bem.</p>
+
+    <div class="finale-stage" id="finaleStage">
+      <span class="final-stamp">31.10.2025 — ∞</span>
+      <span class="final-note">E essa é só a primeira parte.</span>
+      <button class="restart-btn" id="restartBtn">Voltar ao começo</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  /* ---------------- contador de tempo em tempo real ---------------- */
+  (function(){
+    const start = new Date(2025, 9, 31, 20, 0, 0); // 31 de outubro de 2025, 20:00 (mês é 0-indexado)
+    const dEl = document.getElementById('cDays');
+    const hEl = document.getElementById('cHours');
+    const mEl = document.getElementById('cMinutes');
+    const sEl = document.getElementById('cSeconds');
+    function pad(n){ return String(n).padStart(2, '0'); }
+    function tick(){
+      const now = new Date();
+      let diff = Math.max(0, now - start);
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      if(dEl) dEl.textContent = days;
+      if(hEl) hEl.textContent = pad(hours);
+      if(mEl) mEl.textContent = pad(minutes);
+      if(sEl) sEl.textContent = pad(seconds);
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  /* ---------------- tela de loading ---------------- */
+  const loader = document.getElementById('loader');
+  function hideLoaderAndStart(){
+    loader.classList.add('hide');
+    setTimeout(() => {
+      loader.style.display = 'none';
+      startHeroSequence();
+    }, 800);
+  }
+  setTimeout(hideLoaderAndStart, 2400);
+
+  /* ---------------- hero cinematic sequence ---------------- */
+  function buildLine(el, text, startDelay, stagger){
+    const words = text.split(' ');
+    words.forEach((w, i) => {
+      const span = document.createElement('span');
+      span.className = 'w';
+      span.textContent = w + '\u00A0';
+      span.style.animationDelay = (startDelay + i * stagger) + 's';
+      el.appendChild(span);
+    });
+    return startDelay + words.length * stagger + 1.1; // approx end time
+  }
+
+  const startBtn = document.getElementById('startBtn');
+
+  function startHeroSequence(){
+    const line1 = "Ei amor, feliz aniversário de novo, mas tenho uma história pra te contar.";
+    const line2 = "Senta aí e aperta o botão.";
+
+    const end1 = buildLine(document.getElementById('heroLine1'), line1, 0.4, 0.09);
+    const end2 = buildLine(document.getElementById('heroLine2'), line2, end1 + 0.6, 0.12);
+
+    document.getElementById('heroSub').style.animationDelay = (end2 + 0.3) + 's';
+    startBtn.style.display = 'inline-block';
+    startBtn.style.animationDelay = (end2 + 0.6) + 's, ' + (end2 + 1.8) + 's';
+  }
+
+  // hero dust particles (podem existir desde já, ficam ocultos atrás do loader)
+  const heroDust = document.getElementById('heroDust');
+  for (let i = 0; i < 22; i++) {
+    const d = document.createElement('div');
+    d.className = 'dust';
+    d.style.left = Math.random() * 100 + '%';
+    d.style.top = (60 + Math.random() * 40) + '%';
+    d.style.animationDuration = (8 + Math.random() * 10) + 's';
+    d.style.animationDelay = (Math.random() * 10) + 's';
+    heroDust.appendChild(d);
+  }
+
+  /* ---------------- reveal on scroll ---------------- */
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.reveal, .growing-dot').forEach(el => revealObserver.observe(el));
+
+  const dividerObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); });
+  }, { threshold: 0.6 });
+  document.querySelectorAll('.divider').forEach(el => dividerObserver.observe(el));
+
+  /* ---------------- per-chapter sparkle burst ---------------- */
+  const sparkTargets = document.querySelectorAll('.chapter:not(#ch4)');
+  const sparkObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.dataset.sparked) {
+        entry.target.dataset.sparked = '1';
+        const n = 7;
+        for (let i = 0; i < n; i++) {
+          const s = document.createElement('div');
+          s.className = 'sparkle';
+          s.style.left = (10 + Math.random() * 80) + '%';
+          s.style.top = (10 + Math.random() * 80) + '%';
+          s.style.animationDelay = (Math.random() * 1.2) + 's';
+          entry.target.appendChild(s);
+          setTimeout(() => s.remove(), 4000);
+        }
+      }
+    });
+  }, { threshold: 0.35 });
+  sparkTargets.forEach(el => sparkObserver.observe(el));
+
+  /* ---------------- milestones: timeline + progress + back button ---------------- */
+  const milestoneEls = Array.from(document.querySelectorAll('[data-milestone]'));
+  const timeline = document.getElementById('timeline');
+  milestoneEls.forEach((el, i) => {
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.dataset.index = i;
+    item.innerHTML = '<span class="timeline-label">' + el.dataset.milestone + '</span><span class="timeline-dot"></span>';
+    item.addEventListener('click', () => el.scrollIntoView({ behavior: 'smooth' }));
+    item.style.cursor = 'pointer';
+    timeline.appendChild(item);
+  });
+  const timelineItems = Array.from(timeline.querySelectorAll('.timeline-item'));
+
+  let activeIndex = 0;
+  const backBtn = document.getElementById('backBtn');
+  const chapterIndicator = document.getElementById('chapterIndicator');
+  const chapterOrder = ['ch1','ch2','ch3','ch4','ch6','ch7','ch8','ch9'];
+
+  const milestoneObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = milestoneEls.indexOf(entry.target);
+        activeIndex = idx;
+        timelineItems.forEach(t => t.classList.remove('active'));
+        if (timelineItems[idx]) timelineItems[idx].classList.add('active');
+        backBtn.classList.toggle('show', idx > 0);
+        muteBtnShow();
+
+        const chIdx = chapterOrder.indexOf(entry.target.id);
+        if (chIdx > -1) {
+          chapterIndicator.textContent = 'capítulo ' + String(chIdx + 1).padStart(2, '0') + ' de ' + String(chapterOrder.length).padStart(2, '0');
+          chapterIndicator.classList.add('show');
+        } else {
+          chapterIndicator.classList.remove('show');
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+  milestoneEls.forEach(el => milestoneObserver.observe(el));
+
+  backBtn.addEventListener('click', () => {
+    if (activeIndex > 0) milestoneEls[activeIndex - 1].scrollIntoView({ behavior: 'smooth' });
+  });
+
+  function muteBtnShow(){ document.getElementById('muteBtn').classList.add('show'); }
+
+  // top progress bar
+  const topProgress = document.getElementById('topProgress');
+  function updateProgress(){
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    topProgress.style.width = scrolled + '%';
+  }
+  window.addEventListener('scroll', () => requestAnimationFrame(updateProgress));
+
+  /* ---------------- navigation buttons ---------------- */
+  startBtn.addEventListener('click', () => {
+    document.getElementById('ch1').scrollIntoView({ behavior: 'smooth' });
+    startMusic();
+  });
+  document.querySelectorAll('.continue-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(btn.getAttribute('data-next')).scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  /* ---------------- music ---------------- */
+  const bgMusic = document.getElementById('bgMusic');
+  const muteBtn = document.getElementById('muteBtn');
+  let musicStarted = false;
+  function startMusic(){
+    if (musicStarted) return;
+    musicStarted = true;
+    bgMusic.volume = 0;
+    bgMusic.play().catch(() => {});
+    let v = 0;
+    const fade = setInterval(() => {
+      v += 0.02;
+      if (v >= 0.18) { v = 0.18; clearInterval(fade); }
+      bgMusic.volume = v;
+    }, 150);
+  }
+  muteBtn.addEventListener('click', () => {
+    bgMusic.muted = !bgMusic.muted;
+    muteBtn.style.opacity = bgMusic.muted ? '0.4' : '1';
+  });
+
+  // toca a música desde a primeira interação em qualquer tela (inclusive na tela inicial)
+  document.addEventListener('pointerdown', function firstInteraction(){
+    startMusic();
+    document.removeEventListener('pointerdown', firstInteraction);
+  }, { once: true });
+
+  /* ---------------- ambient hearts ---------------- */
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion) {
+    const layer = document.getElementById('heartsLayer');
+    const count = window.innerWidth < 640 ? 10 : 18;
+    for (let i = 0; i < count; i++) {
+      const h = document.createElement('div');
+      h.className = 'heart-particle';
+      h.style.left = (Math.random() * 100) + 'vw';
+      h.style.setProperty('--s', (0.5 + Math.random() * 1.1));
+      h.style.setProperty('--sway', (Math.random() * 60 - 30) + 'px');
+      h.style.setProperty('--o', (0.15 + Math.random() * 0.3));
+      h.style.animationDuration = (16 + Math.random() * 14) + 's';
+      h.style.animationDelay = (Math.random() * 20) + 's';
+      layer.appendChild(h);
+    }
+
+    // flores de cerejeira — bem poucas, caindo bem devagar
+    const petalsLayer = document.getElementById('petalsLayer');
+    const petalCount = window.innerWidth < 640 ? 5 : 8;
+    for (let i = 0; i < petalCount; i++) {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      p.style.left = (Math.random() * 100) + 'vw';
+      p.style.setProperty('--psway', (Math.random() * 70 - 35) + 'px');
+      p.style.setProperty('--po', (0.35 + Math.random() * 0.3));
+      p.style.animationDuration = (26 + Math.random() * 18) + 's';
+      p.style.animationDelay = (Math.random() * 30) + 's';
+      petalsLayer.appendChild(p);
+    }
+
+    document.addEventListener('click', (e) => {
+      const h = document.createElement('div');
+      h.className = 'click-heart';
+      h.style.left = (e.clientX - 5) + 'px';
+      h.style.top = (e.clientY - 5) + 'px';
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1000);
+    });
+
+    // mute ambient hearts while in chapter 4 (heavier mode)
+    const ch4Observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => layer.classList.toggle('muted', entry.isIntersecting));
+    }, { threshold: 0.4 });
+    ch4Observer.observe(document.getElementById('ch4'));
+
+    // finale hearts burst on view
+    const finaleLayer = document.getElementById('finaleHearts');
+    let finaleFired = false;
+    const finaleObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !finaleFired) {
+          finaleFired = true;
+          const fc = window.innerWidth < 640 ? 14 : 26;
+          for (let i = 0; i < fc; i++) {
+            const h = document.createElement('div');
+            h.className = 'heart-particle';
+            h.style.left = (Math.random() * 100) + 'vw';
+            h.style.setProperty('--s', (0.5 + Math.random() * 1));
+            h.style.setProperty('--sway', (Math.random() * 50 - 25) + 'px');
+            h.style.setProperty('--o', (0.2 + Math.random() * 0.35));
+            h.style.background = '#E4C583';
+            h.style.animationDuration = (10 + Math.random() * 10) + 's';
+            h.style.animationDelay = (Math.random() * 6) + 's';
+            finaleLayer.appendChild(h);
+          }
+          runFinaleSequence();
+        }
+      });
+    }, { threshold: 0.3 });
+    finaleObserver.observe(document.getElementById('ch9'));
+  } else {
+    const finaleObserver2 = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) runFinaleSequence(); });
+    }, { threshold: 0.3 });
+    finaleObserver2.observe(document.getElementById('ch9'));
+  }
+
+  /* ---------------- finale staged sequence ---------------- */
+  let finaleSequenceRun = false;
+  function runFinaleSequence(){
+    if (finaleSequenceRun) return;
+    finaleSequenceRun = true;
+    const stageEls = document.querySelectorAll('#finaleStage > *');
+    const delays = [3200, 2000, 1500]; // silence, then note, then button
+    let acc = delays[0];
+    stageEls.forEach((el, i) => {
+      setTimeout(() => el.classList.add('show'), acc);
+      acc += delays[i + 1] || 1500;
+    });
+  }
+
+  /* ---------------- stars for chapter 8 ---------------- */
+  const starsBg = document.getElementById('starsBg');
+  if (starsBg) {
+    const starCount = window.innerWidth < 640 ? 40 : 80;
+    for (let i = 0; i < starCount; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = (Math.random() * 4) + 's';
+      star.style.width = star.style.height = (Math.random() * 1.5 + 1) + 'px';
+      starsBg.appendChild(star);
+    }
+  }
+
+  /* ---------------- lightbox ---------------- */
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  function openLightbox(src, alt, variant){
+    lightboxImg.src = src;
+    lightboxImg.alt = alt;
+    lightbox.classList.toggle('unfold', variant === 'unfold');
+    lightbox.classList.add('open');
+  }
+  function closeLightbox(){ lightbox.classList.remove('open'); }
+
+  document.querySelectorAll('.photo-mat img').forEach(img => {
+    img.addEventListener('click', () => openLightbox(img.src, img.alt, 'zoom'));
+  });
+  document.querySelectorAll('.letter-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const img = card.querySelector('img');
+      openLightbox(img.src, img.alt, card.dataset.lightbox || 'zoom');
+      if (navigator.vibrate) navigator.vibrate(35);
+    });
+  });
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+
+</body>
+</html>
